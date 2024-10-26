@@ -1,4 +1,4 @@
-steps: 
+steps:
 # Step 1: Create GKE Cluster
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
@@ -42,6 +42,33 @@ steps:
       # Deploy the application
       kubectl set image deployment/flask-app flask-app=gcr.io/$PROJECT_ID/flask-app:latest || \
       kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
+
+# Step 7: Create Ingress Resource without Host
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      # Create the Ingress to expose the service
+      cat <<EOF | kubectl apply -f -
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: flask-app-ingress
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
+      spec:
+        rules:
+        - http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: flask-app
+                  port:
+                    number: 80
+      EOF
 
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
