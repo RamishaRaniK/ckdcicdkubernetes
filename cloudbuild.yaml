@@ -5,7 +5,13 @@ steps:
   args:
     - '-c'
     - |
-      gcloud container clusters create my-cluster --zone asia-southeast1-a --num-nodes 3 || echo "Cluster already exists"
+      # Check if the GKE cluster already exists
+      if gcloud container clusters describe my-cluster --zone asia-southeast1-a --project $PROJECT_ID; then
+        echo "Cluster already exists."
+      else
+        echo "Creating GKE cluster..."
+        gcloud container clusters create my-cluster --zone asia-southeast1-a --num-nodes 3
+      fi
 
 # Step 2: Build Docker Image
 - name: 'gcr.io/cloud-builders/docker'
@@ -39,36 +45,50 @@ steps:
   args:
     - '-c'
     - |
-      # Deploy the application
-      kubectl set image deployment/flask-app flask-app=gcr.io/$PROJECT_ID/flask-app:latest || \
-      kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
+      # Check if the deployment already exists
+      if kubectl get deployment flask-app; then
+        echo "Updating existing deployment..."
+        kubectl set image deployment/flask-app flask-app=gcr.io/$PROJECT_ID/flask-app:latest
+      else
+        echo "Creating new deployment..."
+        kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
+      fi
 
-# Step 7: Create Ingress Resource without Host
+# Step 7: Create Ingress Resource with Host
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
-      # Create the Ingress to expose the service
-      cat <<EOF | kubectl apply -f -
-      apiVersion: networking.k8s.io/v1
-      kind: Ingress
-      metadata:
-        name: flask-app-ingress
-        annotations:
-          nginx.ingress.kubernetes.io/rewrite-target: /
-      spec:
-        rules:
-        - http:
-            paths:
-            - path: /
-              pathType: Prefix
-              backend:
-                service:
-                  name: flask-app
-                  port:
-                    number: 80
-      EOF
+      # Set the desired host for the Ingress
+      #HOST=your-desired-host.com
+
+      # Create the Ingress to expose the service if it doesn't already exist
+      if kubectl get ingress flask-app-ingress; then
+        echo "Ingress resource already exists."
+      else
+        echo "Creating Ingress resource..."
+        cat <<EOF | kubectl apply -f -
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: flask-app-ingress
+          annotations:
+            nginx.ingress.kubernetes.io/rewrite-target: /
+        spec:
+          rules:
+          - host: 
+            http:
+              paths:
+              - path: /
+                pathType: Prefix
+                backend:
+                  service:
+                    name: flask-app
+                    port:
+                      number: 80
+        EOF
+      fi
 
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
