@@ -23,6 +23,8 @@ steps:
     - |
       kubectl set image deployment/flask-app flask-app=gcr.io/$PROJECT_ID/flask-app:latest || \
       kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
-
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
+  
 images:
 - 'gcr.io/$PROJECT_ID/flask-app'
