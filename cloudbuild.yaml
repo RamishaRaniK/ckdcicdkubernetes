@@ -23,12 +23,23 @@ steps:
     - |
       gcloud container clusters get-credentials my-cluster --zone asia-southeast1-a --project $PROJECT_ID
 
-# Step 5: Deploy to GKE
+# Step 5: Verify Kubernetes Context
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:
     - '-c'
     - |
+      # Check the current Kubernetes context and cluster information
+      kubectl config current-context
+      kubectl cluster-info
+
+# Step 6: Deploy to GKE
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      # Deploy the application
       kubectl set image deployment/flask-app flask-app=gcr.io/$PROJECT_ID/flask-app:latest || \
       kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
 
