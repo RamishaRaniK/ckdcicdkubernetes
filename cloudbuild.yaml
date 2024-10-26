@@ -1,4 +1,4 @@
-steps:
+steps: 
 # Step 1: Create GKE Cluster
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
@@ -15,7 +15,15 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'gcr.io/$PROJECT_ID/flask-app']
 
-# Step 4: Deploy to GKE
+# Step 4: Get GKE Cluster Credentials
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: 'bash'
+  args:
+    - '-c'
+    - |
+      gcloud container clusters get-credentials my-cluster --zone asia-southeast1-a --project $PROJECT_ID
+
+# Step 5: Deploy to GKE
 - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
   entrypoint: 'bash'
   args:
@@ -23,6 +31,7 @@ steps:
     - |
       kubectl set image deployment/flask-app flask-app=gcr.io/$PROJECT_ID/flask-app:latest || \
       kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
+
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
   
