@@ -83,8 +83,7 @@ steps:
                     name: flask-app
                     port:
                       number: 80
-EOF
-
+                      EOF
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
   
