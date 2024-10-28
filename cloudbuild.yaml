@@ -75,7 +75,7 @@
         echo "Ingress resource already exists."
       else
         echo "Creating Ingress resource..."
-        cat <<EOF | kubectl apply -f-
+        cat <<EOF | kubectl apply -f --
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
