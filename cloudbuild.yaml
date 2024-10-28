@@ -85,7 +85,6 @@ spec:
               number: 80
 EOF
       fi
-
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
   
