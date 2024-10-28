@@ -76,25 +76,25 @@
       else
         echo "Creating Ingress resource..."
         cat <<EOF | kubectl apply -f -
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: flask-app-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: flask-app
-            port:
-              number: 80
-EOF
-      fi
+            apiVersion: networking.k8s.io/v1
+            kind: Ingress
+            metadata:
+              name: flask-app-ingress
+              annotations:
+                nginx.ingress.kubernetes.io/rewrite-target: /
+            spec:
+              rules:
+              - http:
+                  paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: flask-app
+                        port:
+                          number: 80
+            EOF
+                  fi
 
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
