@@ -54,36 +54,6 @@ steps:
         kubectl create deployment flask-app --image=gcr.io/$PROJECT_ID/flask-app:latest
       fi
 
-# Step 7: Create Ingress Resource with IP Address
-- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-  entrypoint: 'bash'
-  args:
-    - '-c'
-    - |
-      # Create the Ingress to expose the service if it doesn't already exist
-      if kubectl get ingress flask-app-ingress; then
-        echo "Ingress resource already exists."
-      else
-        echo "Creating Ingress resource..."
-        cat <<EOF | kubectl apply -f -
-        apiVersion: networking.k8s.io/v1
-        kind: Ingress
-        metadata:
-          name: flask-app-ingress
-          annotations:
-            nginx.ingress.kubernetes.io/rewrite-target: /
-        spec:
-          rules:
-          - http:
-              paths:
-              - path: /
-                pathType: Prefix
-                backend:
-                  service:
-                    name: flask-app
-                    port:
-                      number: 80
-                      EOF
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
   
